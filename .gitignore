@@ -2,3 +2,16 @@
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+
+# Aplicativo Android: o que é gerado pelo build (bibliotecas Rust, ligações Kotlin, Gradle)
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/local.properties
+/android/app/src/main/jniLibs/
+/android/app/src/main/java/uniffi/
+
+# Chaves de assinatura do app Android (nunca no repositório)
+*.jks
+*.keystore
+*.segredos.txt
