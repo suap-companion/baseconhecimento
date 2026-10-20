@@ -27,6 +27,6 @@ Guia para agentes (e pessoas) que trabalham neste repositório: `suap-companion/
 
 ## Limitações conhecidas
 
-- Só se acha o que as páginas de área (`/centralservicos/baseconhecimento/dashboard/<slug>/`) listam; entradas sem serviço vinculado não aparecem lá. Use `atualizar --id N` para baixar uma entrada específica.
+- As páginas de área (`/centralservicos/baseconhecimento/dashboard/<slug>/`) só listam entradas com serviço vinculado. `atualizar --varrer` tenta também os ids que faltam (buracos e ids acima do maior, parando após `--parada` negativas seguidas); os ids negados ficam em `varredura.json` e não são tentados de novo sem `--forcar`. `atualizar --id N` baixa uma entrada específica.
 - O `atualizado_em` do SUAP não muda nas edições; a detecção de mudança usa um resumo do conteúdo (exige buscar a página de cada entrada).
 - A busca é por palavras (FTS5/BM25), sem sinônimos; PDFs digitalizados (sem texto) não são indexados.

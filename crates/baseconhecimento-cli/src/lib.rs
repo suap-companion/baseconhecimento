@@ -131,6 +131,12 @@ struct UpdateArgs {
     /// Só mostra problemas (para o agendador).
     #[arg(long)]
     quiet: bool,
+    /// Procura também entradas que nenhuma área lista (buracos nos ids e ids acima do maior).
+    #[arg(long)]
+    varrer: bool,
+    /// Com --varrer: para depois de tantos ids seguidos sem entrada visível.
+    #[arg(long, default_value_t = 50)]
+    parada: usize,
     /// Só estes ids de entradas, sem varrer as áreas.
     #[arg(long = "id")]
     ids: Vec<u64>,
@@ -458,6 +464,7 @@ fn atualizar(paths: &AppPaths, args: UpdateArgs, out: &mut dyn Write) -> Outcome
         force: args.forcar,
         prune: args.podar,
         attachments: settings.attachments && !args.sem_anexos,
+        scan: args.varrer.then_some(args.parada),
         only: Some(args.ids.clone()).filter(|ids| !ids.is_empty()),
     };
     let quiet = args.quiet;
