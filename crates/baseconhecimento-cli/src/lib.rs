@@ -2,7 +2,7 @@
 //!
 //! O ponto de entrada (`main.rs`) é um invólucro fino; tudo o que se testa vive aqui.
 
-use std::{error::Error, ffi::OsString, fs, io::Write, path::PathBuf};
+use std::{error::Error, ffi::OsString, fs, io::Write};
 
 use baseconhecimento_core::{
     clock,
@@ -264,10 +264,7 @@ fn dispatch(
     }
 }
 
-/// Pasta da cópia local do perfil.
-pub fn data_root(paths: &AppPaths) -> PathBuf {
-    paths.data_dir().join("base").join(paths.profile())
-}
+pub use baseconhecimento_core::store::data_root;
 
 fn profile_config(paths: &AppPaths) -> Result<SuapConfig, Box<dyn Error>> {
     let profile = paths.profile();
@@ -466,6 +463,7 @@ fn atualizar(paths: &AppPaths, args: UpdateArgs, out: &mut dyn Write) -> Outcome
         attachments: settings.attachments && !args.sem_anexos,
         scan: args.varrer.then_some(args.parada),
         only: Some(args.ids.clone()).filter(|ids| !ids.is_empty()),
+        cancel: None,
     };
     let quiet = args.quiet;
     let mut progress = |line: &str| {
