@@ -76,7 +76,7 @@ Veja [docs/arquitetura.md](docs/arquitetura.md) para os detalhes do rastreamento
 
 - `baseconhecimento-core`: leitura do HTML do SUAP (`parse`), conversão para Markdown (`markdown`), nomes seguros (`sanitize`), cópia local (`store`), índice (`index`), atualização incremental (`crawl`), configurações (`settings`) e agendamento (`schedule`).
 - `baseconhecimento-cli`: a interface de linha de comando (binário `baseconhecimento`).
-- **Núcleo compartilhado** ([`suap-companion/suap-kit`](https://github.com/suap-companion/suap-kit), dependência Git fixada em tag): `suap-core` (login, sessão, perfis, diretórios) e `suap-rag` (SQLite/FTS5, trechos). A sincronização cifrada (`suap-sync`) ainda não é usada: a regra de privacidade mantém o conteúdo só local, e sincronizar apenas perfis fica para uma próxima issue.
+- **Núcleo compartilhado** ([`suap-companion/suap-kit`](https://github.com/suap-companion/suap-kit), dependência Git fixada em tag): `suap-core` (login, sessão, perfis, diretórios) e `suap-rag` (SQLite/FTS5, trechos). Não há sincronização própria: o conteúdo fica só local (regra de privacidade) e os perfis já vêm do `~/.config/suap/config.toml` compartilhado, que o `chamados sync` (cifrado, via `suap-sync`) leva entre máquinas.
 
 ## Desenvolvimento
 
