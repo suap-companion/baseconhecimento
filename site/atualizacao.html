@@ -23,7 +23,7 @@
         <ul id="resultados" class="results" hidden></ul>
       </form>
     </div>
-    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="usar.html">Usar</a><a href="atualizacao.html" aria-current="page">Atualização semanal</a><a href="faq.html">Dúvidas</a><a href="privacidade.html">Privacidade</a></nav>
+    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="android.html">App Android</a><a href="usar.html">Usar</a><a href="atualizacao.html" aria-current="page">Atualização semanal</a><a href="faq.html">Dúvidas</a><a href="privacidade.html">Privacidade</a></nav>
   </header>
   <nav class="crumbs wrap" aria-label="Você está em"><a href="./">Central de ajuda</a> › <span>Atualização semanal</span></nav>
   <main id="conteudo" class="wrap doc">
@@ -36,6 +36,9 @@
 baseconhecimento agendar --sistema cron       <span class="c"># windows, cron ou systemd</span></pre>
     <p>Exemplo no Windows (Agendador de Tarefas):</p>
 <pre class="term">schtasks /Create /SC DAILY /ST 12:00 /TN "baseconhecimento-default" /TR "\"C:\caminho\baseconhecimento.exe\" --profile default atualizar --se-vencido --quiet"</pre>
+
+    <h2 id="android">No app Android</h2>
+    <p>O <a href="android.html#automatica">app</a> cuida do agendamento sozinho: em <em>Configurações</em> ligue <em>Atualizar sozinho</em> e escolha o intervalo. O Android confere uma vez por dia e o app só baixa quando o intervalo vence (padrão 7 dias).</p>
 
     <h2 id="ajustar">Ajustar</h2>
 <pre class="term">baseconhecimento config --auto-atualizar false   <span class="c"># pausa</span>

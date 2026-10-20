@@ -1,6 +1,6 @@
 # baseconhecimento
 
-Espelha a **Base de Conhecimento** da Central de Serviços do SUAP numa pasta local, em **Markdown**, com os anexos, e a indexa para **busca offline** (SQLite/FTS5). É uma **biblioteca** Rust e um **CLI**, no mesmo repositório (`suap-companion/baseconhecimento`), irmão do [`chamados`](https://github.com/suap-companion/chamados).
+Espelha a **Base de Conhecimento** da Central de Serviços do SUAP numa pasta local, em **Markdown**, com os anexos, e a indexa para **busca offline** (SQLite/FTS5). É uma **biblioteca** Rust, um **CLI** e um **app Android**, no mesmo repositório (`suap-companion/baseconhecimento`), irmão do [`chamados`](https://github.com/suap-companion/chamados).
 
 > **Nota:** Este NÃO é um projeto oficial do IFRN, é um projeto pessoal. Construído sem qualquer apoio ou incentivo institucional.
 
@@ -22,6 +22,10 @@ Baixe o binário da [última release](https://github.com/suap-companion/baseconh
 ```bash
 cargo build --release -p baseconhecimento-cli   # target/release/baseconhecimento
 ```
+
+## App Android
+
+O mesmo conteúdo no celular, lido **sem rede** depois da primeira atualização: lista com filtros por área, visibilidade e tag, busca offline em entradas e anexos, leitura do Markdown (com imagens e anexos), atualização sob demanda com andamento e atualização automática (padrão: semanal, só com bateria e rede adequadas). O login é feito na página do próprio SUAP: o app nunca vê a senha. Baixe o `.apk` da [última release](https://github.com/suap-companion/baseconhecimento/releases) (Android 8+). Detalhes, testes e como compilar em [docs/android.md](docs/android.md).
 
 ## Primeiros passos
 
@@ -55,7 +59,7 @@ O arquivo `~/.config/suap/config.toml` (perfis) é o mesmo do `chamados`: um per
 
 - **Sob demanda:** `baseconhecimento atualizar`. Só baixa de novo as entradas cujo conteúdo mudou (comparado por um resumo do conteúdo, já que o `atualizado_em` do SUAP só é gravado na criação da entrada).
 - **Semanal:** o agendador roda todo dia `atualizar --se-vencido --quiet`; o programa só atualiza quando o intervalo configurado (padrão 7 dias) venceu. Computador desligado na hora certa atualiza na vez seguinte. `baseconhecimento agendar` imprime o comando; veja [docs/agendamento.md](docs/agendamento.md).
-- **Settings:** `baseconhecimento config --auto-atualizar true --intervalo-dias 7 --anexos true`. A biblioteca expõe a mesma `Settings` para uma tela de configurações futura.
+- **Settings:** `baseconhecimento config --auto-atualizar true --intervalo-dias 7 --anexos true`. O app Android expõe a mesma `Settings` na tela de configurações.
 
 ## Como fica no disco
 
@@ -76,11 +80,12 @@ Veja [docs/arquitetura.md](docs/arquitetura.md) para os detalhes do rastreamento
 
 - `baseconhecimento-core`: leitura do HTML do SUAP (`parse`), conversão para Markdown (`markdown`), nomes seguros (`sanitize`), cópia local (`store`), índice (`index`), atualização incremental (`crawl`), configurações (`settings`) e agendamento (`schedule`).
 - `baseconhecimento-cli`: a interface de linha de comando (binário `baseconhecimento`).
+- `baseconhecimento-mobile`: a fachada UniFFI (cdylib) que o app Android em `android/` (Kotlin + Compose) usa: sessão, leitura/busca offline, `Settings` e atualização com andamento e cancelamento.
 - **Núcleo compartilhado** ([`suap-companion/suap-kit`](https://github.com/suap-companion/suap-kit), dependência Git fixada em tag): `suap-core` (login, sessão, perfis, diretórios) e `suap-rag` (SQLite/FTS5, trechos). Não há sincronização própria: o conteúdo fica só local (regra de privacidade) e os perfis já vêm do `~/.config/suap/config.toml` compartilhado, que o `chamados sync` (cifrado, via `suap-sync`) leva entre máquinas.
 
 ## Desenvolvimento
 
-Sem Rust local, use o Docker: `sh scripts/validar-docker.sh` (formatação, `clippy -D warnings` e cobertura de **100% das linhas**). Com Rust: `sh scripts/validar.sh`. Detalhes em [AGENTS.md](AGENTS.md).
+Sem Rust local, use o Docker: `sh scripts/validar-docker.sh` (formatação, `clippy -D warnings` e cobertura de **100% das linhas**). Com Rust: `sh scripts/validar.sh`. O app Android: `sh scripts/build-android.sh` e, em `android/`, `./gradlew testDebugUnitTest lintDebug assembleDebug` (e `connectedDebugAndroidTest` no emulador). Detalhes em [AGENTS.md](AGENTS.md).
 
 ## Licença
 

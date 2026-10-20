@@ -7,7 +7,8 @@
     "windows": "-windows-x86_64.zip",
     "linux": "-linux-x86_64.tar.gz",
     "linux-arm": "-linux-arm64.tar.gz",
-    "macos": "-macos-aarch64.tar.gz"
+    "macos": "-macos-aarch64.tar.gz",
+    "android": "-android.apk"
   };
 
   function json(url) {
@@ -41,11 +42,18 @@
     ["Buscar", "usar.html#buscar", "buscar busca palavras pdf anexos json limite"],
     ["Status e configurações", "usar.html#status", "status config intervalo dias reindexar"],
     ["Perfis", "usar.html#perfis", "perfil homologacao suap ambientes sessão"],
+    ["App Android", "android.html", "android celular apk instalar app offline"],
+    ["Entrar no app Android", "android.html#entrar", "android login webview sessão senha gov.br"],
+    ["Baixar a base no celular", "android.html#primeira", "android primeira atualização wifi cancelar andamento"],
+    ["Ler, buscar e filtrar no app", "android.html#ler", "android lista filtros busca leitura anexos tags área visibilidade"],
+    ["Atualização automática no app", "android.html#automatica", "android automática agenda intervalo wifi bateria notificação"],
     ["Atualização semanal", "atualizacao.html", "semanal agendar agendador cron systemd windows tarefa se-vencido"],
     ["Ajustar a atualização automática", "atualizacao.html#ajustar", "config auto-atualizar intervalo pausa status"],
     ["Sessão expirada", "faq.html#sessao", "sessão expirada login entrar de novo"],
     ["Faltam entradas", "faq.html#faltam", "faltam entradas sem acesso 403 404 área negada id"],
     ["A busca não acha o anexo", "faq.html#busca", "anexo pdf digitalizado ocr protegido reindexar"],
+    ["App: a atualização não roda sozinha", "faq.html#android-sessao", "android atualização automática não roda bateria wifi sessão"],
+    ["App: imagem ou link offline", "faq.html#android-offline", "android imagem anexo link offline"],
     ["Privacidade e segurança", "privacidade.html", "privacidade privada sigilosa senha dados segurança local"]
   ];
   var input = document.getElementById("busca");

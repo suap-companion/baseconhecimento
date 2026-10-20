@@ -30,6 +30,34 @@ jobs:
       - name: Run tests
         run: cargo test --workspace --all-targets
 
+  android:
+    name: Android
+    needs: test
+    uses: ./.github/workflows/android.yml
+    with:
+      ref: ${{ github.event.release.tag_name }}
+    secrets: inherit
+
+  android-release:
+    name: Publish Android APK
+    needs: android
+    if: needs.android.outputs.signed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the signed APK
+        uses: actions/download-artifact@v8
+        with:
+          name: apk
+
+      - name: Name the APK
+        run: mv baseconhecimento-android.apk "${{ env.BINARY }}-${{ github.event.release.tag_name }}-android.apk"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: ${{ env.BINARY }}-${{ github.event.release.tag_name }}-android.apk
+
   build:
     name: Build ${{ matrix.name }}
     needs: test
@@ -115,7 +143,9 @@ jobs:
 
   checksums:
     name: Checksums
-    needs: build
+    needs: [build, android-release]
+    # O APK é opcional (só sai com a chave de assinatura configurada): o job do APK pode ter sido pulado.
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.android-release.result != 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - name: Generate and upload SHA256SUMS.txt
@@ -125,7 +155,7 @@ jobs:
         run: |
           mkdir assets && cd assets
           gh release download "$TAG" --repo "${{ github.repository }}" --pattern "${{ env.BINARY }}-*"
-          test "$(ls | wc -l)" -eq 4 || { echo "esperava 4 binários, achei:"; ls; exit 1; }
+          test "$(ls | grep -vc '\.apk$')" -eq 4 || { echo "esperava 4 binários, achei:"; ls; exit 1; }
           sha256sum * > SHA256SUMS.txt
           cat SHA256SUMS.txt
           gh release upload "$TAG" SHA256SUMS.txt --repo "${{ github.repository }}" --clobber

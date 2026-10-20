@@ -28,6 +28,10 @@ O `suap-rag` guarda os trechos (SQLite/FTS5, BM25, sem acentos nem caixa). Cada 
 
 Os perfis ficam no `~/.config/suap/config.toml` do `suap-core` (o mesmo do `chamados`). Dados em `<dados>/base/<perfil>/`; a sessão em `session[-perfil].cookies` do diretório de dados do `baseconhecimento`.
 
+## App Android
+
+A fachada `baseconhecimento-mobile` (UniFFI) expõe a biblioteca ao app Kotlin em `android/`: sessão por cookies da WebView, leitura offline (`entries`, `entry`, `search`), `Settings` e `crawl::update` com progresso consultável e cancelamento (`UpdateOptions::cancel`). Veja [android.md](android.md).
+
 ## Limitações
 
 - Entradas que nenhuma área lista (sem serviço vinculado) chegam por `atualizar --varrer` (tenta os ids que faltam e para após `--parada` negativas seguidas; os negados ficam em `varredura.json`) ou por `atualizar --id N`. Com `--varrer`, `--podar` também apaga a entrada que o SUAP deixou de mostrar.
