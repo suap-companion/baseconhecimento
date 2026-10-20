@@ -262,6 +262,9 @@ fn updates_lists_shows_and_searches() {
         .ok(&["atualizar", "--forcar", "--id", "1"])
         .contains("1 atualizada(s)"));
     assert!(env.ok(&["atualizar", "--quiet"]).is_empty());
+    assert!(env
+        .ok(&["atualizar", "--varrer", "--parada", "2"])
+        .contains("0 nova(s)"));
 
     let listed = env.ok(&["listar"]);
     assert!(

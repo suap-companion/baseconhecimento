@@ -10,7 +10,7 @@
 //! ```
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs,
     path::{Path, PathBuf},
 };
@@ -24,6 +24,7 @@ use crate::{
 };
 
 const MANIFEST: &str = "manifesto.json";
+const SCAN_FILE: &str = "varredura.json";
 
 /// O que se sabe de uma entrada já baixada (sem o texto, que fica no arquivo Markdown).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -152,6 +153,21 @@ impl Store {
         let temporary = self.root.join("manifesto.json.tmp");
         fs::write(&temporary, serde_json::to_string_pretty(manifest)?)?;
         fs::rename(temporary, self.root.join(MANIFEST))?;
+        Ok(())
+    }
+
+    /// Ids que a varredura já tentou e o SUAP negou ou não achou.
+    pub fn missing(&self) -> Result<BTreeSet<u64>, Error> {
+        let file = self.root.join(SCAN_FILE);
+        if !file.exists() {
+            return Ok(BTreeSet::new());
+        }
+        Ok(serde_json::from_str(&fs::read_to_string(file)?)?)
+    }
+
+    pub fn save_missing(&self, missing: &BTreeSet<u64>) -> Result<(), Error> {
+        let text = serde_json::to_string(missing)?;
+        fs::write(self.root.join(SCAN_FILE), text)?;
         Ok(())
     }
 
@@ -326,6 +342,9 @@ mod tests {
         );
         store.save_manifest(&manifest).unwrap();
         assert_eq!(store.manifest().unwrap(), manifest);
+        assert!(store.missing().unwrap().is_empty());
+        store.save_missing(&BTreeSet::from([4, 9])).unwrap();
+        assert_eq!(store.missing().unwrap(), BTreeSet::from([4, 9]));
         store.save_attachment(1, "x.txt", b"x").unwrap();
         store.clear_attachments(1).unwrap();
         assert!(!store.attachments_dir(1).exists());

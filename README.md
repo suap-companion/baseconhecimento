@@ -42,7 +42,7 @@ O arquivo `~/.config/suap/config.toml` (perfis) é o mesmo do `chamados`: um per
 | `paths` | onde ficam configuração, sessão e cópia local do perfil |
 | `profile init\|update\|remove\|show\|list` | perfis (ambientes SUAP), como no `chamados` |
 | `login`, `session-status` | entra no SUAP e confere a sessão |
-| `atualizar` | baixa o que mudou (incremental) e reindexa; `--forcar`, `--podar`, `--sem-anexos`, `--id N`, `--se-vencido`, `--quiet` |
+| `atualizar` | baixa o que mudou (incremental) e reindexa; `--forcar`, `--podar`, `--sem-anexos`, `--id N`, `--varrer` (`--parada N`), `--se-vencido`, `--quiet` |
 | `listar` | entradas baixadas; filtros `--area`, `--visibilidade`; `--json` |
 | `mostrar <id>` | a entrada em Markdown (ou `--json`) |
 | `buscar <palavras>` | busca por palavras (BM25) em entradas e anexos TXT/MD/PDF; `--limite`, `--json` |

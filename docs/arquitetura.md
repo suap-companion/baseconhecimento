@@ -29,7 +29,7 @@ Os perfis ficam no `~/.config/suap/config.toml` do `suap-core` (o mesmo do `cham
 
 ## Limitações
 
-- Entradas que nenhuma área lista (sem serviço vinculado) só chegam por `atualizar --id N`.
+- Entradas que nenhuma área lista (sem serviço vinculado) chegam por `atualizar --varrer` (tenta os ids que faltam e para após `--parada` negativas seguidas; os negados ficam em `varredura.json`) ou por `atualizar --id N`. Com `--varrer`, `--podar` também apaga a entrada que o SUAP deixou de mostrar.
 - Comentários internos das entradas não são baixados (não fazem parte do artigo).
 - Imagens embutidas no texto ficam como links para o SUAP; não são baixadas.
 - PDFs sem texto (digitalizados) ou protegidos não entram no índice.

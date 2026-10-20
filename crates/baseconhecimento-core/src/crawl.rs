@@ -13,6 +13,8 @@ use crate::{
     store::{render_markdown, Manifest, Record, Store},
     Error,
 };
+use std::collections::BTreeSet;
+
 use suap_rag::Index;
 
 /// Opções de uma rodada de atualização.
@@ -26,6 +28,8 @@ pub struct UpdateOptions {
     pub attachments: bool,
     /// Só estes ids (sem varrer as áreas).
     pub only: Option<Vec<u64>>,
+    /// Procura também entradas que nenhuma área lista, parando após tantas negativas seguidas.
+    pub scan: Option<usize>,
 }
 
 /// O resultado da rodada.
@@ -33,6 +37,8 @@ pub struct UpdateOptions {
 pub struct Report {
     pub areas: usize,
     pub listed: usize,
+    /// Ids tentados pela varredura.
+    pub scanned: usize,
     pub added: usize,
     pub updated: usize,
     pub unchanged: usize,
@@ -160,6 +166,103 @@ fn sync_entry(
     Ok(step)
 }
 
+/// Uma rodada em andamento: junta o que `sync_entry` precisa e conta o resultado.
+struct Run<'a> {
+    fetcher: &'a dyn Fetcher,
+    store: &'a Store,
+    index: &'a mut Index,
+    manifest: Manifest,
+    options: &'a UpdateOptions,
+    base_url: &'a str,
+    report: Report,
+    progress: &'a mut dyn FnMut(&str),
+}
+
+impl Run<'_> {
+    /// Confere uma entrada, conta o resultado e diz se ela existe para esta conta.
+    fn entry(&mut self, id: u64, show_misses: bool) -> Result<bool, Error> {
+        let step = sync_entry(
+            self.fetcher,
+            self.store,
+            self.index,
+            &mut self.manifest,
+            self.options,
+            self.base_url,
+            id,
+            &mut self.report,
+        )?;
+        let hit = match step {
+            Step::Added => {
+                self.report.added += 1;
+                true
+            }
+            Step::Updated => {
+                self.report.updated += 1;
+                true
+            }
+            Step::Unchanged => {
+                self.report.unchanged += 1;
+                true
+            }
+            Step::Inaccessible => {
+                self.report.inaccessible.push(id);
+                false
+            }
+            Step::Failed => {
+                self.report.failed.push(id);
+                false
+            }
+        };
+        if hit || show_misses {
+            (self.progress)(&format!("entrada {id}: {}", label(&step)));
+        }
+        Ok(hit)
+    }
+
+    /// Procura entradas que nenhuma área lista: os buracos entre os ids conhecidos e os ids depois
+    /// do maior, até `stop` negativas seguidas. Os ids que o SUAP negou ficam em `varredura.json`
+    /// para não serem tentados de novo (a não ser com `force`).
+    fn scan(&mut self, listed: &[u64], stop: usize) -> Result<Vec<u64>, Error> {
+        let mut missing = self.store.missing()?;
+        let known: Vec<u64> = listed.iter().chain(self.manifest.keys()).copied().collect();
+        let top = known.iter().copied().max().unwrap_or(0);
+        let skip = |id: &u64, run: &Self, missing: &BTreeSet<u64>| {
+            known.contains(id) || (!run.options.force && missing.contains(id))
+        };
+        let mut found = Vec::new();
+        let rechecks: Vec<u64> = self
+            .manifest
+            .keys()
+            .filter(|id| !listed.contains(id))
+            .copied()
+            .collect();
+        for id in rechecks {
+            if self.entry(id, true)? {
+                found.push(id);
+            }
+        }
+        let mut misses = 0;
+        let mut id = 1;
+        while id <= top || misses < stop {
+            if !skip(&id, self, &missing) {
+                if self.entry(id, false)? {
+                    found.push(id);
+                    misses = 0;
+                } else {
+                    missing.insert(id);
+                    misses += usize::from(id > top);
+                }
+                self.report.scanned += 1;
+            } else if id > top {
+                misses += 1;
+            }
+            id += 1;
+        }
+        self.store.save_missing(&missing)?;
+        Ok(found)
+    }
+}
+
 /// Roda uma atualização. `base_url` só entra no `url:` do frontmatter.
 pub fn update(
     fetcher: &dyn Fetcher,
@@ -169,50 +272,53 @@ pub fn update(
     base_url: &str,
     progress: &mut dyn FnMut(&str),
 ) -> Result<Report, Error> {
-    let mut report = Report::default();
-    let mut manifest = store.manifest()?;
-    let ids = match &options.only {
-        Some(only) => only.clone(),
-        None => discover(fetcher, &mut report)?,
+    let mut run = Run {
+        fetcher,
+        store,
+        index,
+        manifest: store.manifest()?,
+        options,
+        base_url,
+        report: Report::default(),
+        progress,
     };
-    report.listed = ids.len();
-    progress(&format!("{} entrada(s) para conferir", ids.len()));
-    for id in &ids {
-        let step = sync_entry(
-            fetcher,
-            store,
-            index,
-            &mut manifest,
-            options,
-            base_url,
-            *id,
-            &mut report,
-        )?;
-        match step {
-            Step::Added => report.added += 1,
-            Step::Updated => report.updated += 1,
-            Step::Unchanged => report.unchanged += 1,
-            Step::Inaccessible => report.inaccessible.push(*id),
-            Step::Failed => report.failed.push(*id),
-        }
-        progress(&format!("entrada {id}: {}", label(&step)));
+    let mut ids = match &options.only {
+        Some(only) => only.clone(),
+        None => discover(fetcher, &mut run.report)?,
+    };
+    run.report.listed = ids.len();
+    (run.progress)(&format!("{} entrada(s) para conferir", ids.len()));
+    for id in ids.clone() {
+        run.entry(id, true)?;
     }
-    let complete = options.only.is_none() && report.areas_denied.is_empty();
+    if let (Some(stop), None) = (options.scan, &options.only) {
+        (run.progress)("varrendo ids fora das áreas");
+        let found = run.scan(&ids, stop)?;
+        ids.extend(found);
+    }
+    let complete = options.only.is_none() && run.report.areas_denied.is_empty();
     if options.prune && complete {
-        let gone: Vec<u64> = manifest
+        let gone: Vec<u64> = run
+            .manifest
             .keys()
-            .filter(|id| !ids.contains(id))
+            .filter(|id| !ids.contains(id) && options.scan.is_none())
+            .chain(
+                run.report
+                    .inaccessible
+                    .iter()
+                    .filter(|id| run.manifest.contains_key(id)),
+            )
             .copied()
             .collect();
         for id in gone {
             store.remove(id)?;
-            remove_entry(index, id)?;
-            manifest.remove(&id);
-            report.removed += 1;
+            remove_entry(run.index, id)?;
+            run.manifest.remove(&id);
+            run.report.removed += 1;
         }
-        store.save_manifest(&manifest)?;
+        store.save_manifest(&run.manifest)?;
     }
-    Ok(report)
+    Ok(run.report)
 }
 
 fn label(step: &Step) -> &'static str {
@@ -503,5 +609,99 @@ mod tests {
         let file = world();
         file.file("/media/guia.txt", Err(FetchError::NotAuthenticated));
         assert!(run(&file, &store, &mut index, &options()).is_err());
+    }
+
+    #[test]
+    fn scan_finds_entries_no_area_lists_and_remembers_misses() {
+        let (_dir, store, mut index) = setup();
+        let fake = world();
+        fake.page(
+            "/centralservicos/baseconhecimento/6/",
+            Ok(entry_html(
+                "Escondida",
+                "02/02/2026 10:00",
+                "fora das áreas",
+            )),
+        );
+        let scan = |stop| UpdateOptions {
+            scan: Some(stop),
+            ..options()
+        };
+        let first = run(&fake, &store, &mut index, &scan(3)).unwrap();
+        assert_eq!(first.added, 2);
+        assert_eq!(first.scanned, 5);
+        assert!(store.manifest().unwrap().contains_key(&6));
+        assert_eq!(
+            store.missing().unwrap().into_iter().collect::<Vec<_>>(),
+            vec![5, 7, 8, 9]
+        );
+
+        let again = run(&fake, &store, &mut index, &scan(3)).unwrap();
+        assert_eq!((again.scanned, again.added, again.unchanged), (0, 0, 2));
+        let forced = run(
+            &fake,
+            &store,
+            &mut index,
+            &UpdateOptions {
+                force: true,
+                ..scan(2)
+            },
+        )
+        .unwrap();
+        assert!(forced.scanned >= 2);
+    }
+
+    #[test]
+    fn scan_fills_holes_and_prunes_what_vanished() {
+        let (_dir, store, mut index) = setup();
+        let fake = world();
+        fake.page(
+            "/centralservicos/baseconhecimento/dashboard/ti/",
+            Ok(r#"<a href="/centralservicos/baseconhecimento/1/">a</a><a href="/centralservicos/baseconhecimento/5/">e</a>"#.into()),
+        );
+        fake.page(
+            "/centralservicos/baseconhecimento/5/",
+            Ok(entry_html("Cinco", "03/03/2026 10:00", "cinco")),
+        );
+        fake.page(
+            "/centralservicos/baseconhecimento/3/",
+            Ok(entry_html("Três", "03/03/2026 10:00", "tres")),
+        );
+        let scan = UpdateOptions {
+            scan: Some(1),
+            prune: true,
+            ..options()
+        };
+        let first = run(&fake, &store, &mut index, &scan).unwrap();
+        assert_eq!(first.added, 3);
+        assert_eq!(
+            store.missing().unwrap().into_iter().collect::<Vec<_>>(),
+            vec![2, 4, 6]
+        );
+
+        fake.page(
+            "/centralservicos/baseconhecimento/3/",
+            Err(FetchError::Inaccessible),
+        );
+        let pruned = run(&fake, &store, &mut index, &scan).unwrap();
+        assert_eq!(pruned.removed, 1);
+        assert!(!store.manifest().unwrap().contains_key(&3));
+    }
+
+    #[test]
+    fn scan_is_ignored_with_only_ids() {
+        let (_dir, store, mut index) = setup();
+        let report = run(
+            &world(),
+            &store,
+            &mut index,
+            &UpdateOptions {
+                only: Some(vec![1]),
+                scan: Some(5),
+                ..options()
+            },
+        )
+        .unwrap();
+        assert_eq!(report.scanned, 0);
     }
 }
