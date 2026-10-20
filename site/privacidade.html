@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacidade e segurança · baseconhecimento</title>
+  <meta name="description" content="O que o baseconhecimento guarda, onde e o que nunca sai do seu computador.">
+  <meta name="theme-color" content="#11786C">
+  <link rel="icon" href="assets/img/icone.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/rawline-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="./" aria-label="baseconhecimento, central de ajuda">
+        <img src="assets/img/icone.svg" alt="" width="36" height="36"><span>baseconhecimento <small>ajuda</small></span>
+      </a>
+      <form class="search" role="search" onsubmit="return false">
+        <label class="sr" for="busca">Buscar na ajuda</label>
+        <input id="busca" type="search" placeholder="Buscar na ajuda…" autocomplete="off">
+        <ul id="resultados" class="results" hidden></ul>
+      </form>
+    </div>
+    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="usar.html">Usar</a><a href="atualizacao.html">Atualização semanal</a><a href="faq.html">Dúvidas</a><a href="privacidade.html" aria-current="page">Privacidade</a></nav>
+  </header>
+  <nav class="crumbs wrap" aria-label="Você está em"><a href="./">Central de ajuda</a> › <span>Privacidade e segurança</span></nav>
+  <main id="conteudo" class="wrap doc">
+
+    <h1>Privacidade e segurança</h1>
+    <p class="lead">Resumo em linguagem simples. Não há servidor do baseconhecimento no meio: o programa fala direto com o SUAP.</p>
+    <ul class="ticks">
+      <li><strong>Entradas privadas e sigilosas:</strong> são baixadas e indexadas <strong>só no seu computador</strong>, e apenas as que a sua conta enxerga. Nada delas é enviado a outro lugar.</li>
+      <li><strong>Senha:</strong> lida da variável <code>SUAP_PASSWORD</code> na hora do login; não é salva. Só os cookies da sessão ficam no diretório de dados.</li>
+      <li><strong>Anexos:</strong> só são baixados do próprio endereço do SUAP do perfil, para a sua sessão não ir a terceiros; os nomes são sanitizados.</li>
+      <li><strong>Avisos e mensagens:</strong> mostram ids e números, nunca títulos nem textos.</li>
+      <li><strong>Cuidado com a cópia:</strong> a pasta local contém o que o SUAP lhe mostrou. Proteja o disco (e backups) como protegeria o próprio SUAP.</li>
+      <li><strong>Código aberto:</strong> tudo pode ser conferido no <a href="https://github.com/suap-companion/baseconhecimento">repositório</a>.</li>
+    </ul>
+    <p class="callout">Ao relatar um problema, <strong>nunca</strong> cole senhas, cookies nem o conteúdo de entradas da Base de Conhecimento.</p>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>O baseconhecimento <strong>não é um projeto oficial</strong> do IFRN nem do SUAP. · <a href="https://suap-companion.github.io/">suap-companion</a></p>
+      <nav aria-label="Rodapé">
+        <a href="privacidade.html">Privacidade</a>
+        <a href="https://github.com/suap-companion/baseconhecimento">Código</a>
+        <a href="https://github.com/suap-companion/baseconhecimento/issues">Relatar um problema</a>
+        <a href="assets/fonts/Rawline-OFL.txt">Licença da fonte</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="assets/site.js" defer></script>
+</body>
+</html>

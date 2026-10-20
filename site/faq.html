@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dúvidas e problemas · baseconhecimento</title>
+  <meta name="description" content="Respostas para os problemas mais comuns do baseconhecimento.">
+  <meta name="theme-color" content="#11786C">
+  <link rel="icon" href="assets/img/icone.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/rawline-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="./" aria-label="baseconhecimento, central de ajuda">
+        <img src="assets/img/icone.svg" alt="" width="36" height="36"><span>baseconhecimento <small>ajuda</small></span>
+      </a>
+      <form class="search" role="search" onsubmit="return false">
+        <label class="sr" for="busca">Buscar na ajuda</label>
+        <input id="busca" type="search" placeholder="Buscar na ajuda…" autocomplete="off">
+        <ul id="resultados" class="results" hidden></ul>
+      </form>
+    </div>
+    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="usar.html">Usar</a><a href="atualizacao.html">Atualização semanal</a><a href="faq.html" aria-current="page">Dúvidas</a><a href="privacidade.html">Privacidade</a></nav>
+  </header>
+  <nav class="crumbs wrap" aria-label="Você está em"><a href="./">Central de ajuda</a> › <span>Dúvidas e problemas</span></nav>
+  <main id="conteudo" class="wrap doc">
+
+    <h1>Dúvidas e problemas</h1>
+
+    <h2 id="sessao">"Sessão do SUAP ausente ou expirada"</h2>
+    <p>Rode <code>baseconhecimento login</code> de novo (com <code>SUAP_PASSWORD</code> definida). <code>baseconhecimento session-status</code> confere a sessão salva.</p>
+
+    <h2 id="faltam">Faltam entradas</h2>
+    <ul class="ticks">
+      <li>Entradas que o SUAP não deixa a sua conta ver aparecem como <em>sem acesso</em> no resumo.</li>
+      <li>Só se acha o que as páginas de área listam. Para uma entrada específica use <code>baseconhecimento atualizar --id 123</code>.</li>
+      <li>Áreas negadas aparecem no aviso final; a próxima atualização completa tenta de novo.</li>
+    </ul>
+
+    <h2 id="busca">A busca não acha o anexo</h2>
+    <p>Só anexos TXT, Markdown e PDF com texto entram no índice. PDFs digitalizados (imagem) ou protegidos por senha não têm texto para buscar. Depois de mudar arquivos à mão, rode <code>baseconhecimento reindexar</code>.</p>
+
+    <h2 id="atualizado">Por que ele busca a página de todas as entradas?</h2>
+    <p>O campo "atualizado em" do SUAP só é gravado na criação da entrada, então a única forma de saber se algo mudou é comparar o conteúdo. Só o que mudou é gravado e reindexado.</p>
+
+    <h2 id="oficial">É oficial?</h2>
+    <p>Não. É um projeto pessoal, sem apoio institucional, que lê o SUAP com a sua própria conta e respeita o que ela enxerga.</p>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>O baseconhecimento <strong>não é um projeto oficial</strong> do IFRN nem do SUAP. · <a href="https://suap-companion.github.io/">suap-companion</a></p>
+      <nav aria-label="Rodapé">
+        <a href="privacidade.html">Privacidade</a>
+        <a href="https://github.com/suap-companion/baseconhecimento">Código</a>
+        <a href="https://github.com/suap-companion/baseconhecimento/issues">Relatar um problema</a>
+        <a href="assets/fonts/Rawline-OFL.txt">Licença da fonte</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="assets/site.js" defer></script>
+</body>
+</html>
