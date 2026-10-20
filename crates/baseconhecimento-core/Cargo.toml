@@ -1,0 +1,21 @@
+[package]
+name = "baseconhecimento-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# Leitura do HTML do SUAP (a mesma versão que o suap-core usa, que já entra no build).
+scraper = "0.22"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+suap-core.workspace = true
+suap-rag.workspace = true
+thiserror = "2"
+# Executa as chamadas assíncronas do SuapClient de forma bloqueante (a mesma versão do suap-core).
+tokio = { version = "1", features = ["rt"] }
+
+[dev-dependencies]
+tempfile = "3"
+wiremock = "0.6"
+tokio = { version = "1", features = ["rt", "macros", "rt-multi-thread"] }

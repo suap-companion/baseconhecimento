@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usar · baseconhecimento</title>
+  <meta name="description" content="Guia dos comandos do baseconhecimento: atualizar, listar, mostrar, buscar, status e config.">
+  <meta name="theme-color" content="#11786C">
+  <link rel="icon" href="assets/img/icone.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/rawline-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="./" aria-label="baseconhecimento, central de ajuda">
+        <img src="assets/img/icone.svg" alt="" width="36" height="36"><span>baseconhecimento <small>ajuda</small></span>
+      </a>
+      <form class="search" role="search" onsubmit="return false">
+        <label class="sr" for="busca">Buscar na ajuda</label>
+        <input id="busca" type="search" placeholder="Buscar na ajuda…" autocomplete="off">
+        <ul id="resultados" class="results" hidden></ul>
+      </form>
+    </div>
+    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="usar.html" aria-current="page">Usar</a><a href="atualizacao.html">Atualização semanal</a><a href="faq.html">Dúvidas</a><a href="privacidade.html">Privacidade</a></nav>
+  </header>
+  <nav class="crumbs wrap" aria-label="Você está em"><a href="./">Central de ajuda</a> › <span>Usar</span></nav>
+  <main id="conteudo" class="wrap doc">
+
+    <h1>Usar</h1>
+    <p class="lead">Cada comando tem ajuda: <code>baseconhecimento &lt;comando&gt; --help</code>.</p>
+
+    <h2 id="atualizar">Baixar e atualizar</h2>
+<pre class="term">baseconhecimento atualizar                  <span class="c"># incremental: só baixa o que mudou</span>
+baseconhecimento atualizar --forcar         <span class="c"># baixa tudo de novo</span>
+baseconhecimento atualizar --id 123         <span class="c"># só esta entrada (mesmo fora das áreas listadas)</span>
+baseconhecimento atualizar --sem-anexos
+baseconhecimento atualizar --podar          <span class="c"># apaga o que sumiu do SUAP</span></pre>
+    <p>No fim, o resumo conta entradas novas, atualizadas, sem mudança, <em>sem acesso</em> (o SUAP não deixa a sua conta ver) e falhas. O progresso mostra só ids.</p>
+
+    <h2 id="listar">Listar e ler</h2>
+<pre class="term">baseconhecimento listar
+baseconhecimento listar --area tecnologia --visibilidade privada
+baseconhecimento mostrar 123                <span class="c"># o Markdown da entrada, com os metadados no topo</span></pre>
+    <p>As entradas também são arquivos comuns em <code>baseconhecimento paths</code> → <em>cópia local</em> → <code>entradas/</code>: abra no seu editor, no Obsidian ou em qualquer ferramenta de Markdown.</p>
+
+    <h2 id="buscar">Buscar</h2>
+<pre class="term">baseconhecimento buscar impressora toner
+baseconhecimento buscar --limite 10 --json acesso vpn</pre>
+    <p>A busca é por palavras, ignora acentos e maiúsculas e vale para o texto das entradas e para anexos TXT, Markdown e PDF (com texto). Mostra a entrada, a visibilidade e de onde veio o trecho.</p>
+
+    <h2 id="status">Status e configurações</h2>
+<pre class="term">baseconhecimento status
+baseconhecimento config --intervalo-dias 7 --auto-atualizar true --anexos true
+baseconhecimento reindexar                  <span class="c"># refaz o índice a partir dos arquivos</span></pre>
+
+    <h2 id="perfis">Perfis</h2>
+<pre class="term">baseconhecimento profile list
+baseconhecimento --profile homologacao profile init --base-url https://suap-homolog.exemplo.br/
+baseconhecimento --profile homologacao atualizar</pre>
+    <p>Cada perfil tem sessão, cópia local e configurações próprias.</p>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>O baseconhecimento <strong>não é um projeto oficial</strong> do IFRN nem do SUAP. · <a href="https://suap-companion.github.io/">suap-companion</a></p>
+      <nav aria-label="Rodapé">
+        <a href="privacidade.html">Privacidade</a>
+        <a href="https://github.com/suap-companion/baseconhecimento">Código</a>
+        <a href="https://github.com/suap-companion/baseconhecimento/issues">Relatar um problema</a>
+        <a href="assets/fonts/Rawline-OFL.txt">Licença da fonte</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="assets/site.js" defer></script>
+</body>
+</html>

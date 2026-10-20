@@ -1,0 +1,13 @@
+[workspace]
+members = ["crates/baseconhecimento-core", "crates/baseconhecimento-cli"]
+resolver = "2"
+
+# Núcleo compartilhado (repositório suap-companion/suap-kit), fixado por tag.
+[workspace.dependencies]
+suap-core = { git = "https://github.com/suap-companion/suap-kit", tag = "v0.2.0" }
+suap-rag = { git = "https://github.com/suap-companion/suap-kit", tag = "v0.2.0" }
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+version = "0.1.0"

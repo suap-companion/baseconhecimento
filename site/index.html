@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Central de ajuda · baseconhecimento</title>
+  <meta name="description" content="Instale e use o baseconhecimento: a Base de Conhecimento do SUAP offline, em Markdown, com busca.">
+  <meta name="theme-color" content="#11786C">
+  <link rel="icon" href="assets/img/icone.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/rawline-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="./" aria-label="baseconhecimento, central de ajuda">
+        <img src="assets/img/icone.svg" alt="" width="36" height="36"><span>baseconhecimento <small>ajuda</small></span>
+      </a>
+      <form class="search" role="search" onsubmit="return false">
+        <label class="sr" for="busca">Buscar na ajuda</label>
+        <input id="busca" type="search" placeholder="Buscar na ajuda…" autocomplete="off">
+        <ul id="resultados" class="results" hidden></ul>
+      </form>
+    </div>
+    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="usar.html">Usar</a><a href="atualizacao.html">Atualização semanal</a><a href="faq.html">Dúvidas</a><a href="privacidade.html">Privacidade</a></nav>
+  </header>
+  <main id="conteudo" class="wrap doc">
+
+    <section class="hero-help">
+      <h1>Como podemos ajudar?</h1>
+      <p class="lead">O <strong>baseconhecimento</strong> baixa a Base de Conhecimento do SUAP para o seu computador, em Markdown, e deixa você pesquisar sem rede. Versão mais recente: <strong data-version>…</strong>.</p>
+    </section>
+
+    <section aria-labelledby="comece">
+      <h2 id="comece">Comece por aqui</h2>
+      <ol class="steps">
+        <li><strong>Instale.</strong> <a href="instalar.html">Baixe o programa</a> para o seu sistema.</li>
+        <li><strong>Entre.</strong> <code>baseconhecimento login</code> usa o seu usuário do SUAP.</li>
+        <li><strong>Baixe e pesquise.</strong> <code>baseconhecimento atualizar</code> e depois <code>baseconhecimento buscar impressora</code>. Veja o <a href="usar.html">guia de uso</a>.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="temas">
+      <h2 id="temas">Temas</h2>
+      <div class="cards">
+        <a class="tile" href="instalar.html"><h3>Instalar</h3><p>Windows, Linux e macOS, e os primeiros comandos.</p></a>
+        <a class="tile" href="usar.html"><h3>Usar</h3><p>Atualizar, listar, ler e buscar nas entradas.</p></a>
+        <a class="tile" href="atualizacao.html"><h3>Atualização semanal</h3><p>Agendar no Windows, cron ou systemd e ajustar o intervalo.</p></a>
+        <a class="tile" href="faq.html"><h3>Dúvidas e problemas</h3><p>Sessão expirada, entradas que faltam, anexos e busca.</p></a>
+        <a class="tile" href="privacidade.html"><h3>Privacidade e segurança</h3><p>O que fica no seu computador e o que vai para o SUAP.</p></a>
+      </div>
+    </section>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>O baseconhecimento <strong>não é um projeto oficial</strong> do IFRN nem do SUAP. · <a href="https://suap-companion.github.io/">suap-companion</a></p>
+      <nav aria-label="Rodapé">
+        <a href="privacidade.html">Privacidade</a>
+        <a href="https://github.com/suap-companion/baseconhecimento">Código</a>
+        <a href="https://github.com/suap-companion/baseconhecimento/issues">Relatar um problema</a>
+        <a href="assets/fonts/Rawline-OFL.txt">Licença da fonte</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="assets/site.js" defer></script>
+</body>
+</html>
