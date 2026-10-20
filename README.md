@@ -68,6 +68,8 @@ O arquivo `~/.config/suap/config.toml` (perfis) é o mesmo do `chamados`: um per
   settings.json               configurações da atualização
 ```
 
+As imagens do texto são baixadas para `anexos/<id>/imagens/` e os links do Markdown passam a apontar para elas (a que falhar continua apontando para o SUAP).
+
 Veja [docs/arquitetura.md](docs/arquitetura.md) para os detalhes do rastreamento, da conversão e das limitações.
 
 ## Arquitetura

@@ -136,6 +136,19 @@ fn last_update(document: &Html) -> (Option<String>, Option<String>) {
     (by, Some(when.trim().to_owned()).filter(|w| !w.is_empty()))
 }
 
+/// Os `src` das imagens de um trecho de HTML: na ordem, sem repetir e sem `data:`.
+fn image_urls(html: &str) -> Vec<String> {
+    let fragment = Html::parse_fragment(html);
+    let mut urls: Vec<String> = Vec::new();
+    for image in fragment.select(&selector("img[src]")) {
+        let src = image.value().attr("src").unwrap_or_default().trim();
+        if !src.is_empty() && !src.starts_with("data:") && !urls.iter().any(|known| known == src) {
+            urls.push(src.to_owned());
+        }
+    }
+    urls
+}
+
 fn attachments(document: &Html) -> Vec<AttachmentRef> {
     let css = "div.tab-pane[data-title=\"Anexos\"] a[href], [id=\"anexos\"] a[href]";
     let mut found: Vec<AttachmentRef> = Vec::new();
@@ -189,6 +202,11 @@ pub fn parse_entry(id: u64, html: &str) -> Result<Entry, ParseError> {
         flags.iter().any(|f| f == "Ativo").then_some(true)
     };
     let (updated_by, updated_at) = last_update(&document);
+    let (summary, solution) = (
+        box_html(&document, "resumo"),
+        box_html(&document, "solucao"),
+    );
+    let images = image_urls(&format!("{summary}{solution}"));
     Ok(Entry {
         id,
         title,
@@ -206,8 +224,9 @@ pub fn parse_entry(id: u64, html: &str) -> Result<Entry, ParseError> {
         services: list_items(&document, "Serviços vinculados"),
         groups: list_items(&document, "Grupos de atendimento"),
         attachments: attachments(&document),
-        summary: markdown::from_html(&box_html(&document, "resumo")),
-        solution: markdown::from_html(&box_html(&document, "solucao")),
+        images,
+        summary: markdown::from_html(&summary),
+        solution: markdown::from_html(&solution),
     })
 }
 
@@ -294,6 +313,16 @@ mod tests {
         assert_eq!(entry.solution, "1. Abra\n2. Conecte");
         let names: Vec<_> = entry.attachments.iter().map(|a| a.name.as_str()).collect();
         assert_eq!(names, vec!["manual wifi.pdf", "b.png"]);
+    }
+
+    #[test]
+    fn lists_embedded_images_once() {
+        let html = r#"<h2>T</h2><div id="resumo"><div class="accordion-body"><img src="/media/a.png"><img src=" /media/a.png "><img src="data:image/png;base64,AA"><img src=""></div></div>
+            <div id="solucao"><div class="accordion-body"><img src="/media/b.jpg"></div></div>"#;
+        assert_eq!(
+            parse_entry(1, html).unwrap().images,
+            vec!["/media/a.png", "/media/b.jpg"]
+        );
     }
 
     #[test]

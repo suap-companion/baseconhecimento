@@ -208,6 +208,20 @@ impl Store {
         self.root.join("anexos").join(id.to_string())
     }
 
+    /// Pasta das imagens do texto da entrada (dentro da pasta dos anexos).
+    pub fn images_dir(&self, id: u64) -> PathBuf {
+        self.attachments_dir(id).join("imagens")
+    }
+
+    /// Grava uma imagem do texto; `name` já deve ter passado por [`sanitize::file_name`].
+    pub fn save_image(&self, id: u64, name: &str, bytes: &[u8]) -> Result<PathBuf, Error> {
+        let dir = self.images_dir(id);
+        fs::create_dir_all(&dir)?;
+        let path = dir.join(name);
+        fs::write(&path, bytes)?;
+        Ok(path)
+    }
+
     /// Apaga os anexos da entrada (antes de baixar de novo).
     pub fn clear_attachments(&self, id: u64) -> Result<(), Error> {
         let dir = self.attachments_dir(id);
@@ -254,6 +268,7 @@ mod tests {
             services: vec!["Serviço".into()],
             groups: vec![],
             attachments: vec![],
+            images: vec![],
             summary: "Resumo".into(),
             solution: "Solução".into(),
         }
@@ -346,6 +361,10 @@ mod tests {
         store.save_missing(&BTreeSet::from([4, 9])).unwrap();
         assert_eq!(store.missing().unwrap(), BTreeSet::from([4, 9]));
         store.save_attachment(1, "x.txt", b"x").unwrap();
+        assert!(store
+            .save_image(1, "i.png", b"x")
+            .unwrap()
+            .starts_with(store.images_dir(1)));
         store.clear_attachments(1).unwrap();
         assert!(!store.attachments_dir(1).exists());
         assert_eq!(store.root(), dir.path());

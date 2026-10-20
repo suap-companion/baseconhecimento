@@ -487,7 +487,7 @@ fn atualizar(paths: &AppPaths, args: UpdateArgs, out: &mut dyn Write) -> Outcome
     }
     if !quiet {
         let text = format!(
-            "Concluído: {} nova(s), {} atualizada(s), {} sem mudança, {} sem acesso, {} falha(s); anexos: {} baixado(s), {} falha(s); {} removida(s).",
+            "Concluído: {} nova(s), {} atualizada(s), {} sem mudança, {} sem acesso, {} falha(s); anexos: {} baixado(s), {} falha(s); {} removida(s); imagens: {} baixada(s), {} falha(s).",
             report.added,
             report.updated,
             report.unchanged,
@@ -495,7 +495,9 @@ fn atualizar(paths: &AppPaths, args: UpdateArgs, out: &mut dyn Write) -> Outcome
             report.failed.len(),
             report.attachments,
             report.attachment_failures,
-            report.removed
+            report.removed,
+            report.images,
+            report.image_failures
         );
         say(out, &text)?;
     }
