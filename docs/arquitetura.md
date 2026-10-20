@@ -7,7 +7,8 @@ Rotas do módulo `centralservicos` do SUAP, com a sessão do perfil:
 1. `GET /centralservicos/baseconhecimento/`: lista as áreas (`a.box-item` com link para `dashboard/<slug>/`).
 2. `GET /centralservicos/baseconhecimento/dashboard/<slug>/`: os links `/centralservicos/baseconhecimento/<id>/` de cada área (inclusive os escondidos em "Mostrar mais"). Área negada (403/404) é contada e pulada; uma listagem incompleta nunca poda a cópia local.
 3. `GET /centralservicos/baseconhecimento/<id>/`: título, área (`dl.details-container`), tags (`ul.tags`), situação (`span.status`: Ativo/Inativo, Pendente de correção, Supervisão pendente), visibilidade (`status-publica|privada|sigilosa`), Resumo e Solução (`#resumo`/`#solucao`), serviços, grupos de atendimento e anexos (abas, visíveis para atendentes) e "Última Atualização por ... em ...".
-4. Anexos: o `href` de cada link, baixado só se for do mesmo host do SUAP, com o nome sanitizado (sem pastas, sem caracteres proibidos no Windows, sem nomes reservados, tamanho limitado, sem colisão).
+4. Imagens do Resumo e da Solução: baixadas (mesmo host) para `anexos/<id>/imagens/` e os links do Markdown reescritos para o caminho local.
+5. Anexos: o `href` de cada link, baixado só se for do mesmo host do SUAP, com o nome sanitizado (sem pastas, sem caracteres proibidos no Windows, sem nomes reservados, tamanho limitado, sem colisão).
 
 O que a pessoa logada não enxerga (403/404) vira "sem acesso" no resumo. A sessão expirada interrompe a rodada com o pedido de novo login.
 
@@ -31,5 +32,5 @@ Os perfis ficam no `~/.config/suap/config.toml` do `suap-core` (o mesmo do `cham
 
 - Entradas que nenhuma área lista (sem serviço vinculado) chegam por `atualizar --varrer` (tenta os ids que faltam e para após `--parada` negativas seguidas; os negados ficam em `varredura.json`) ou por `atualizar --id N`. Com `--varrer`, `--podar` também apaga a entrada que o SUAP deixou de mostrar.
 - Comentários internos das entradas não são baixados (não fazem parte do artigo).
-- Imagens embutidas no texto ficam como links para o SUAP; não são baixadas.
+- A imagem do texto que não puder ser baixada continua apontando para o SUAP; imagens `data:` ficam como estão.
 - PDFs sem texto (digitalizados) ou protegidos não entram no índice.

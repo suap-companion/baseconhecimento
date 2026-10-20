@@ -44,6 +44,9 @@ pub struct Report {
     pub unchanged: usize,
     pub removed: usize,
     pub attachments: usize,
+    /// Imagens do texto baixadas e as que falharam.
+    pub images: usize,
+    pub image_failures: usize,
     /// Anexos que não puderam ser baixados.
     pub attachment_failures: usize,
     /// Ids que a pessoa logada não enxerga (403/404).
@@ -99,6 +102,41 @@ fn download_attachments(
     Ok(names)
 }
 
+/// Baixa as imagens do texto para `anexos/<id>/imagens/` e troca, no Markdown, o endereço do SUAP
+/// pelo caminho local (relativo à pasta `entradas/`). A que falhar continua apontando para o SUAP.
+fn download_images(
+    fetcher: &dyn Fetcher,
+    store: &Store,
+    entry: &mut crate::Entry,
+    report: &mut Report,
+) -> Result<(), Error> {
+    let mut names: Vec<String> = Vec::new();
+    for url in entry.images.clone() {
+        match fetcher.file(&url) {
+            Ok(bytes) => {
+                let name = sanitize::unique(&sanitize::name_from_url(&url), &names);
+                store.save_image(entry.id, &name, &bytes)?;
+                let local = format!(
+                    "../anexos/{}/imagens/{}",
+                    entry.id,
+                    name.replace(' ', "%20")
+                );
+                entry.summary = entry
+                    .summary
+                    .replace(&format!("]({url})"), &format!("]({local})"));
+                entry.solution = entry
+                    .solution
+                    .replace(&format!("]({url})"), &format!("]({local})"));
+                names.push(name);
+                report.images += 1;
+            }
+            Err(FetchError::NotAuthenticated) => return Err(FetchError::NotAuthenticated.into()),
+            Err(_) => report.image_failures += 1,
+        }
+    }
+    Ok(())
+}
+
 /// O que aconteceu com um id.
 enum Step {
     Added,
@@ -125,7 +163,7 @@ fn sync_entry(
         Err(FetchError::Inaccessible) => return Ok(Step::Inaccessible),
         Err(FetchError::Other(_)) => return Ok(Step::Failed),
     };
-    let entry = match parse::parse_entry(id, &html) {
+    let mut entry = match parse::parse_entry(id, &html) {
         Ok(entry) => entry,
         Err(ParseError::NoTitle(_)) => return Ok(Step::Failed),
     };
@@ -143,7 +181,9 @@ fn sync_entry(
     };
     let now = clock::now();
     let names = if options.attachments {
-        download_attachments(fetcher, store, &entry, report)?
+        let names = download_attachments(fetcher, store, &entry, report)?;
+        download_images(fetcher, store, &mut entry, report)?;
+        names
     } else {
         Vec::new()
     };
@@ -373,7 +413,7 @@ mod tests {
     fn entry_html(title: &str, updated: &str, body: &str) -> String {
         format!(
             r#"<h2>{title}</h2><span class="status status-privada">Privada</span>
-            <div id="resumo"><div class="accordion-body"><p>{body}</p></div></div>
+            <div id="resumo"><div class="accordion-body"><p>{body}</p><img src="/media/foto%20um.png" alt="foto"><img src="/media/foto%20um.png"><img src="/media/outra.png" alt="outra"><img src="/media/quebrada.png" alt="q"></div></div>
             <div class="tab-pane" data-title="Anexos"><a href="/media/guia.txt">guia.txt</a><a href="/media/guia.txt">guia.txt</a><a href="/media/falha.bin">falha.bin</a></div>
             <ul><li>Última Atualização por Pessoa em {updated}</li></ul>"#
         )
@@ -413,6 +453,9 @@ mod tests {
         );
         fake.file("/media/guia.txt", Ok(b"manual do roteador".to_vec()));
         fake.file("/media/falha.bin", Err(FetchError::Other("fora".into())));
+        fake.file("/media/foto%20um.png", Ok(b"png".to_vec()));
+        fake.file("/media/outra.png", Ok(b"png2".to_vec()));
+        fake.file("/media/quebrada.png", Err(FetchError::Other("fora".into())));
         fake
     }
 
@@ -466,9 +509,16 @@ mod tests {
             (vec![2], vec![3, 4])
         );
         assert_eq!((first.attachments, first.attachment_failures), (1, 1));
+        assert_eq!((first.images, first.image_failures), (2, 1));
         assert!(lines.iter().any(|l| l == "entrada 1: nova") && lines[0].starts_with("4 entrada"));
         let md = std::fs::read_to_string(store.entry_file(1).unwrap().unwrap()).unwrap();
         assert!(md.contains("visibilidade: \"privada\"") && md.contains("../anexos/1/guia.txt"));
+        assert!(md.contains("![foto](../anexos/1/imagens/foto%20um.png)"));
+        assert!(
+            md.contains("![outra](../anexos/1/imagens/outra.png)")
+                && md.contains("![q](/media/quebrada.png)")
+        );
+        assert!(store.images_dir(1).join("foto um.png").exists());
         assert_eq!(store.manifest().unwrap()[&1].attachments, vec!["guia.txt"]);
         let hits = crate::index::search(&index, &store.manifest().unwrap(), "roteador", 3).unwrap();
         assert_eq!(hits[0].source, "guia.txt");
@@ -609,6 +659,10 @@ mod tests {
         let file = world();
         file.file("/media/guia.txt", Err(FetchError::NotAuthenticated));
         assert!(run(&file, &store, &mut index, &options()).is_err());
+
+        let image = world();
+        image.file("/media/outra.png", Err(FetchError::NotAuthenticated));
+        assert!(run(&image, &store, &mut index, &options()).is_err());
     }
 
     #[test]

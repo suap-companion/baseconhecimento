@@ -64,6 +64,8 @@ pub struct Entry {
     pub services: Vec<String>,
     pub groups: Vec<String>,
     pub attachments: Vec<AttachmentRef>,
+    /// Endereços das imagens usadas no Resumo e na Solução (sem `data:`).
+    pub images: Vec<String>,
     pub summary: String,
     pub solution: String,
 }
@@ -113,6 +115,7 @@ mod tests {
             services: vec![],
             groups: vec![],
             attachments: vec![],
+            images: vec![],
             summary: "a".into(),
             solution: String::new(),
         };

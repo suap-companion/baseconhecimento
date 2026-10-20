@@ -73,7 +73,7 @@ impl Env {
         self.page(
             &format!("{BASE}/1/"),
             r#"<h2>Trocar o toner</h2><span class="status status-privada">Privada</span>
-               <div id="resumo"><div class="accordion-body"><p>Procedimento para a impressora do setor.</p></div></div>
+               <div id="resumo"><div class="accordion-body"><p>Procedimento para a impressora do setor.</p><img src="/media/toner.png" alt="toner"></div></div>
                <div class="tab-pane" data-title="Anexos"><a href="/media/guia.txt">guia.txt</a></div>
                <dl class="details-container"><dt>Área:</dt><dd>Tecnologia</dd></dl>
                <ul><li>Última Atualização por Pessoa em 01/01/2026 10:00</li></ul>"#,
@@ -84,6 +84,11 @@ impl Env {
                <div id="solucao"><div class="accordion-body"><p>Abra um chamado de acesso.</p></div></div>"#,
         );
         self.mount("GET", &format!("{BASE}/3/"), ResponseTemplate::new(403));
+        self.mount(
+            "GET",
+            "/media/toner.png",
+            ResponseTemplate::new(200).set_body_bytes(vec![1u8, 2]),
+        );
         self.mount(
             "GET",
             "/media/guia.txt",
@@ -256,6 +261,7 @@ fn updates_lists_shows_and_searches() {
 
     let out = env.ok(&["atualizar"]);
     assert!(out.contains("Concluído: 2 nova(s), 0 atualizada(s), 0 sem mudança, 1 sem acesso, 0 falha(s); anexos: 1 baixado(s)"));
+    assert!(out.contains("imagens: 1 baixada(s), 0 falha(s)."));
     let again = env.ok(&["atualizar"]);
     assert!(again.contains("0 nova(s), 0 atualizada(s), 2 sem mudança"));
     assert!(env

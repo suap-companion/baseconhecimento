@@ -156,6 +156,7 @@ mod tests {
             services: vec![],
             groups: vec![],
             attachments: vec![],
+            images: vec![],
             summary: String::new(),
             solution: String::new(),
         }
