@@ -93,13 +93,12 @@ Os testes mexem nos dados do app instalado (apagam e recriam o perfil em uso): r
 
 O `android.yml` compila as 3 ABIs, roda testes unitários e lint e monta o APK de release. A chave **nunca** fica no repositório: o `release.yml` o assina com os segredos `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`. Sem eles o build roda, avisa, e o APK **não** é publicado (um APK sem assinatura não instala). Com a chave, a release anexa `baseconhecimento-<tag>-android.apk` e o `SHA256SUMS.txt` inclui o APK.
 
-Crie a chave uma vez e guarde o arquivo e as senhas num cofre (quem a perde não consegue publicar atualizações que instalem por cima):
+Os segredos do repositório são os **mesmos do `chamados`** (a mesma chave de assinatura): assim os dois apps têm a mesma identidade de assinante. Os valores não podem ser lidos de volta do GitHub; se precisar recadastrá-los, use o `.jks` e o `.segredos.txt` guardados fora do repositório (veja `scripts/android-keystore.sh` do `chamados`):
 
 ```bash
-keytool -genkeypair -v -keystore baseconhecimento-release.jks -alias baseconhecimento -keyalg RSA -keysize 4096 -validity 10000
-base64 -w0 baseconhecimento-release.jks | gh secret set ANDROID_KEYSTORE_B64 --repo suap-companion/baseconhecimento
+base64 -w0 chamados-release.jks | gh secret set ANDROID_KEYSTORE_B64 --repo suap-companion/baseconhecimento
 gh secret set ANDROID_KEYSTORE_PASSWORD --repo suap-companion/baseconhecimento
-gh secret set ANDROID_KEY_ALIAS --repo suap-companion/baseconhecimento --body baseconhecimento
+gh secret set ANDROID_KEY_ALIAS --repo suap-companion/baseconhecimento
 gh secret set ANDROID_KEY_PASSWORD --repo suap-companion/baseconhecimento
 ```
 
@@ -115,6 +114,8 @@ Compilado em 2026-10-20 (v0.4.0), `assembleRelease`, universal (arm64-v8a, armea
 
 A biblioteca é maior que a do `chamados` (~3,2 MiB em arm64) por causa do SQLite embutido e do leitor de PDF (`suap-rag`), que o chamados não usa. Dependências novas em relação ao Kotlin/Compose do chamados: nenhuma além do `androidx.work:work-runtime-ktx` (agendamento que sobrevive a reinício e respeita bateria, rede e Doze; o `chamados` já o usa) e, só nos testes, `androidx.work:work-testing`. O app **não** inclui CameraX, ML Kit nem modelos de IA. Melhorias possíveis: R8 com regras para JNA/UniFFI e `splits` por ABI.
 
-## Não validado
+## Validado no SUAP real e o que falta
 
-Tudo foi testado com dados sintéticos: o SUAP real (HTML, login do gov.br com dois fatores, volume de anexos, tempo de uma primeira atualização completa e o limite de 10 minutos do WorkManager) **não foi** exercitado, assim como a leitura de PDFs reais e o comportamento do agendamento em aparelhos de fabricantes que encerram apps em segundo plano.
+A biblioteca (a mesma que o app usa) foi exercitada em 2026-10-21 contra `https://suap.ifrn.edu.br` pela CLI, num contêiner isolado: login, sessão e `atualizar --sem-anexos` sobre **1725 entradas** (1315 + 411 novas, em duas rodadas), **0 falhas e 0 sem acesso**, ~21 min por uma rodada completa de conferência (uma página por entrada). O parser e a conversão para Markdown aceitaram todo o HTML real; nada do conteúdo foi guardado no repositório.
+
+**Não validado:** o app no aparelho contra o SUAP real (login na WebView com gov.br e dois fatores, anexos e imagens reais, PDFs reais), e o comportamento do agendamento em aparelhos que encerram apps em segundo plano. Como uma conferência completa passa de 10 minutos (limite do WorkManager), a primeira atualização no celular pode precisar de mais de uma rodada; ela continua do ponto em que parou.
