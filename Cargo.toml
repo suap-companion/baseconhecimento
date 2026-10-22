@@ -1,5 +1,9 @@
 [workspace]
-members = ["crates/baseconhecimento-core", "crates/baseconhecimento-cli"]
+members = [
+    "crates/baseconhecimento-core",
+    "crates/baseconhecimento-cli",
+    "crates/baseconhecimento-mobile",
+]
 resolver = "2"
 
 # Núcleo compartilhado (repositório suap-companion/suap-kit), fixado por tag.
@@ -10,4 +14,13 @@ suap-rag = { git = "https://github.com/suap-companion/suap-kit", tag = "v0.2.0" 
 [workspace.package]
 edition = "2021"
 license = "MIT"
-version = "0.3.0"
+version = "0.4.0"
+
+# Perfil das bibliotecas do aplicativo móvel: menor, não mais rápido (`cargo ndk ... --profile mobile`).
+[profile.mobile]
+inherits = "release"
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "unwind"

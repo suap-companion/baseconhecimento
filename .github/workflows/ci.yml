@@ -37,6 +37,13 @@ jobs:
       - name: Lint with Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
 
+  android:
+    name: Android
+    needs: test
+    uses: ./.github/workflows/android.yml
+    with:
+      ref: ${{ github.sha }}
+
   build:
     name: Build workspace
     needs: test

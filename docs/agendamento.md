@@ -44,3 +44,7 @@ baseconhecimento status                               # última atualização e 
 ```
 
 A atualização sob demanda (`baseconhecimento atualizar`) ignora o intervalo e funciona mesmo com a automática desligada.
+
+## Android
+
+O [app Android](android.md) agenda a si mesmo (WorkManager): confere uma vez por dia e só baixa quando o intervalo das configurações vence, o equivalente de `atualizar --se-vencido`. Nada a configurar no sistema.

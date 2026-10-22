@@ -23,6 +23,11 @@ use crate::{
     sanitize, Error,
 };
 
+/// Pasta da cópia local do perfil: `<dados>/base/<perfil>`.
+pub fn data_root(paths: &suap_core::AppPaths) -> PathBuf {
+    paths.data_dir().join("base").join(paths.profile())
+}
+
 const MANIFEST: &str = "manifesto.json";
 const SCAN_FILE: &str = "varredura.json";
 
@@ -252,6 +257,14 @@ impl Store {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn data_root_is_per_profile() {
+        let paths = suap_core::AppPaths::from_dirs("/c".into(), "/d".into());
+        assert_eq!(data_root(&paths), PathBuf::from("/d/base/default"));
+        let other = paths.with_profile("local").unwrap();
+        assert_eq!(data_root(&other), PathBuf::from("/d/base/local"));
+    }
 
     pub fn sample() -> Entry {
         Entry {

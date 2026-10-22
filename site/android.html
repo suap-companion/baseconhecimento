@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>App Android · baseconhecimento</title>
+  <meta name="description" content="Como instalar e usar o app Android do baseconhecimento: ler a Base de Conhecimento do SUAP sem rede.">
+  <meta name="theme-color" content="#11786C">
+  <link rel="icon" href="assets/img/icone.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/rawline-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="./" aria-label="baseconhecimento, central de ajuda">
+        <img src="assets/img/icone.svg" alt="" width="36" height="36"><span>baseconhecimento <small>ajuda</small></span>
+      </a>
+      <form class="search" role="search" onsubmit="return false">
+        <label class="sr" for="busca">Buscar na ajuda</label>
+        <input id="busca" type="search" placeholder="Buscar na ajuda…" autocomplete="off">
+        <ul id="resultados" class="results" hidden></ul>
+      </form>
+    </div>
+    <nav class="wrap menu" aria-label="Principal"><a href="instalar.html">Instalar</a><a href="android.html" aria-current="page">App Android</a><a href="usar.html">Usar</a><a href="atualizacao.html">Atualização semanal</a><a href="faq.html">Dúvidas</a><a href="privacidade.html">Privacidade</a></nav>
+  </header>
+  <nav class="crumbs wrap" aria-label="Você está em"><a href="./">Central de ajuda</a> › <span>App Android</span></nav>
+  <main id="conteudo" class="wrap doc">
+
+    <h1>App Android</h1>
+    <p class="lead">A Base de Conhecimento do SUAP no celular: depois da primeira atualização, tudo se lê e se pesquisa <strong>sem rede</strong>. Versão mais recente: <strong data-version>…</strong>. Precisa do Android 8 (API 26) ou mais novo.</p>
+
+    <h2 id="baixar">Baixar e instalar</h2>
+    <ul class="ticks">
+      <li><a data-asset="android" href="https://github.com/suap-companion/baseconhecimento/releases/latest">App Android (.apk)</a></li>
+    </ul>
+    <p>Abra o arquivo no celular e permita a instalação de apps desta fonte quando o Android perguntar. O <code>SHA256SUMS.txt</code> da release serve para conferir o download. O app não está na loja do Google.</p>
+
+    <h2 id="entrar">Entrar</h2>
+    <p>Na primeira abertura o app mostra a página de login do próprio SUAP (o gov.br e a verificação em dois passos funcionam como no navegador). O app <strong>nunca vê a sua senha</strong>: só guarda a sessão, que fica no armazenamento privado dele. O endereço do SUAP e outros ambientes se configuram em <em>Cadastrar novo perfil</em> (menu da conta).</p>
+
+    <h2 id="primeira">Baixar a base</h2>
+    <p>Depois do login o app já pede a primeira atualização: ele baixa as entradas que a sua conta enxerga, com anexos e imagens, e indexa para a busca. Pode levar alguns minutos e usar bastante dados; prefira o Wi-Fi. O andamento (entradas conferidas) aparece na lista e em <em>Configurações</em>, e dá para cancelar: o que já veio fica salvo.</p>
+
+    <h2 id="ler">Ler, buscar e filtrar</h2>
+    <ul class="ticks">
+      <li><strong>Lista:</strong> todas as entradas baixadas, com área, visibilidade (pública, privada ou sigilosa) e tags. Puxe a lista para baixo para atualizar.</li>
+      <li><strong>Filtros:</strong> por área, visibilidade e tag; <em>Limpar filtros</em> volta ao todo.</li>
+      <li><strong>Busca:</strong> o ícone da lupa pesquisa por palavras (sem diferenciar acentos nem maiúsculas) no texto das entradas e nos anexos TXT, MD e PDF; o resultado diz de onde veio o trecho.</li>
+      <li><strong>Leitura:</strong> o texto da entrada com títulos, listas, tabelas e imagens. Os anexos abrem no aplicativo que você escolher; links externos abrem no navegador.</li>
+    </ul>
+
+    <h2 id="automatica">Atualização automática</h2>
+    <p>Em <em>Configurações</em> (menu ⋮ da lista) você escolhe se o app atualiza sozinho e de quantos em quantos dias (1, 3, 7, 14 ou 30; o padrão é 7), se baixa anexos e imagens e se só usa Wi-Fi. O Android confere uma vez por dia e o app só baixa quando o intervalo venceu, com bateria não fraca e armazenamento livre. Ao terminar com novidades, o app avisa com uma notificação que mostra só contagens, nunca títulos. <em>Atualizar agora</em> roda a mesma atualização na hora.</p>
+    <p class="callout">Se a sessão do SUAP expirar, o app avisa e a leitura continua funcionando; abra <em>Configurações › Entrar de novo</em> para voltar a atualizar.</p>
+
+    <h2 id="dados">Seus dados</h2>
+    <p>As entradas, os anexos e o índice ficam <strong>só neste celular</strong>, na pasta privada do app, e o app não entra em backup na nuvem. Entradas privadas e sigilosas incluídas. <em>Configurações › Apagar a cópia local</em> remove tudo. Veja também <a href="privacidade.html">Privacidade e segurança</a>.</p>
+  </main>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>O baseconhecimento <strong>não é um projeto oficial</strong> do IFRN nem do SUAP. · <a href="https://suap-companion.github.io/">suap-companion</a></p>
+      <nav aria-label="Rodapé">
+        <a href="privacidade.html">Privacidade</a>
+        <a href="https://github.com/suap-companion/baseconhecimento">Código</a>
+        <a href="https://github.com/suap-companion/baseconhecimento/issues">Relatar um problema</a>
+        <a href="assets/fonts/Rawline-OFL.txt">Licença da fonte</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="assets/site.js" defer></script>
+</body>
+</html>

@@ -58,6 +58,14 @@ impl SuapSource {
             .block_on(self.client.login(username, password))?)
     }
 
+    /// Guarda a sessão a partir do cabeçalho `Cookie` de um login feito noutro lugar (a WebView do
+    /// app): a senha nunca chega aqui. Devolve quantos cookies guardou.
+    pub fn import_session_cookies(&self, header: &str) -> Result<usize, Error> {
+        Ok(self
+            .runtime
+            .block_on(self.client.import_cookie_header(header))?)
+    }
+
     /// Se a sessão salva ainda vale.
     pub fn is_authenticated(&self) -> Result<bool, Error> {
         Ok(self.runtime.block_on(self.client.is_authenticated())?)
@@ -168,6 +176,12 @@ mod tests {
         let source = SuapSource::open(&paths(&dir), &config(&server)).unwrap();
         source.login("fulano", "segredo").unwrap();
         assert!(source.is_authenticated().unwrap());
+        assert_eq!(
+            source
+                .import_session_cookies("sessionid=abc; csrftoken=xyz")
+                .unwrap(),
+            2
+        );
         assert_eq!(source.page("/pagina/").unwrap(), "conteudo");
         assert_eq!(source.file("/arquivo.bin").unwrap(), vec![1, 2, 3]);
         let absolute = format!("{}/arquivo.bin", server.uri());

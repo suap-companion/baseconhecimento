@@ -13,7 +13,13 @@ use crate::{
     store::{render_markdown, Manifest, Record, Store},
     Error,
 };
-use std::collections::BTreeSet;
+use std::{
+    collections::BTreeSet,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
 
 use suap_rag::Index;
 
@@ -30,6 +36,8 @@ pub struct UpdateOptions {
     pub only: Option<Vec<u64>>,
     /// Procura também entradas que nenhuma área lista, parando após tantas negativas seguidas.
     pub scan: Option<usize>,
+    /// Quando vira `true`, a rodada para antes da próxima entrada (o que já veio fica salvo).
+    pub cancel: Option<Arc<AtomicBool>>,
 }
 
 /// O resultado da rodada.
@@ -55,6 +63,8 @@ pub struct Report {
     pub failed: Vec<u64>,
     /// Áreas cuja listagem o SUAP negou.
     pub areas_denied: Vec<String>,
+    /// A rodada foi interrompida por `UpdateOptions::cancel`; o resultado é parcial.
+    pub cancelled: bool,
 }
 
 /// Os ids de todas as áreas visíveis.
@@ -329,6 +339,14 @@ pub fn update(
     run.report.listed = ids.len();
     (run.progress)(&format!("{} entrada(s) para conferir", ids.len()));
     for id in ids.clone() {
+        if options
+            .cancel
+            .as_ref()
+            .is_some_and(|flag| flag.load(Ordering::Relaxed))
+        {
+            run.report.cancelled = true;
+            return Ok(run.report);
+        }
         run.entry(id, true)?;
     }
     if let (Some(stop), None) = (options.scan, &options.only) {
@@ -740,6 +758,23 @@ mod tests {
         let pruned = run(&fake, &store, &mut index, &scan).unwrap();
         assert_eq!(pruned.removed, 1);
         assert!(!store.manifest().unwrap().contains_key(&3));
+    }
+
+    #[test]
+    fn a_raised_flag_stops_the_round_before_the_next_entry() {
+        let (_dir, store, mut index) = setup();
+        let fake = world();
+        let flag = Arc::new(AtomicBool::new(false));
+        let options = UpdateOptions {
+            cancel: Some(flag.clone()),
+            ..options()
+        };
+        let full = run(&fake, &store, &mut index, &options).unwrap();
+        assert!(!full.cancelled && full.added == 1);
+        flag.store(true, Ordering::Relaxed);
+        let stopped = run(&fake, &store, &mut index, &options).unwrap();
+        assert!(stopped.cancelled);
+        assert_eq!((stopped.unchanged, stopped.added), (0, 0));
     }
 
     #[test]
