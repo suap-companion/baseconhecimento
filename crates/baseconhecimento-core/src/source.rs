@@ -174,7 +174,8 @@ mod tests {
         mount("GET", "/negado/", ResponseTemplate::new(403));
         let dir = tempfile::tempdir().unwrap();
         let source = SuapSource::open(&paths(&dir), &config(&server)).unwrap();
-        source.login("fulano", "segredo").unwrap();
+        let senha = format!("senha-{}", std::process::id());
+        source.login("fulano", &senha).unwrap();
         assert!(source.is_authenticated().unwrap());
         assert_eq!(
             source
